@@ -154,7 +154,15 @@ abstract class SwipeHelper(
                 drawButtons(c, itemView, buffer, pos, translateX)
             }
         }
-        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+        super.onChildDraw(
+            c,
+            recyclerView,
+            viewHolder,
+            translateX,
+            dY,
+            actionState,
+            isCurrentlyActive
+        )
     }
 
     private fun drawButtons(
