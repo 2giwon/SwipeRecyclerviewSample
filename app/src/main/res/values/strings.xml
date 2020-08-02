@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SwipeRecyclerViewSample</string>
+    <string name="sample_text01">BMW 320i</string>
 </resources>
