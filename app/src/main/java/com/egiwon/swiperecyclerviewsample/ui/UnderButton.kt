@@ -30,7 +30,7 @@ data class UnderButton(
         paint.color = Color.WHITE
         val x = (rectF.width() - icon.width) / 2
         val y = (rectF.height() - icon.height) / 2
-        c.drawBitmap(icon, x, y, paint)
+        c.drawBitmap(icon, rectF.left + x, rectF.top + y, paint)
 
         clickRegion = rectF
         this.pos = pos
