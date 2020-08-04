@@ -2,12 +2,11 @@ package com.egiwon.swiperecyclerviewsample.ui
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.VectorDrawable
+import android.graphics.Canvas
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
-import androidx.core.graphics.drawable.toBitmap
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.egiwon.swiperecyclerviewsample.BR
 import com.egiwon.swiperecyclerviewsample.R
@@ -60,15 +59,17 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.a
     }
 
     private fun Context.getBitmapFromResourceId(@DrawableRes resourceId: Int): Bitmap {
-        val drawable = resources.getDrawable(R.drawable.ic_delete_24px, null)
+        val drawable =
+            requireNotNull(ContextCompat.getDrawable(this, resourceId))
+        val bitmap = Bitmap.createBitmap(
+            drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+        )
 
-        return (drawable as? VectorDrawable)?.toBitmap(
-            drawable.intrinsicWidth,
-            drawable.intrinsicHeight,
-            Bitmap.Config.ARGB_8888
-        ) ?: run {
-            (drawable as BitmapDrawable).bitmap
-        }
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+
+        return bitmap
     }
 
 }
