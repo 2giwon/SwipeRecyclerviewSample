@@ -1,16 +1,12 @@
 package com.egiwon.swiperecyclerviewsample.ui
 
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
-import android.graphics.drawable.BitmapDrawable
+import android.graphics.*
 
 data class UnderButton(
-    val icon: BitmapDrawable,
+    val icon: Bitmap,
     val color: Int,
-    var pos: Int,
-    var clickRegion: RectF?,
+    var pos: Int = 0,
+    var clickRegion: RectF? = null,
     val click: (Int) -> Unit
 ) {
 
@@ -32,9 +28,9 @@ data class UnderButton(
         c.drawRect(rectF, paint)
 
         paint.color = Color.WHITE
-        val x = (rectF.width() - icon.bitmap.width) / 2
-        val y = (rectF.height() - icon.bitmap.height) / 2
-        c.drawBitmap(icon.bitmap, x, y, paint)
+        val x = (rectF.width() - icon.width) / 2
+        val y = (rectF.height() - icon.height) / 2
+        c.drawBitmap(icon, x, y, paint)
 
         clickRegion = rectF
         this.pos = pos
