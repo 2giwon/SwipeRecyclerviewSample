@@ -19,10 +19,7 @@ abstract class SwipeHelper(
     private val buttons: List<UnderButton>
 ) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
-
-    //    private val buttons = mutableListOf<UnderButton>()
     private var swipedPos = -1
-    private val buttonBuffer: HashMap<Int, List<UnderButton>> = hashMapOf()
     private var swipeThreshold = 0.5f
 
     private val recoverQueue: Queue<Int> = object : LinkedList<Int>() {
@@ -71,6 +68,11 @@ abstract class SwipeHelper(
         }
 
         false
+    }
+
+    init {
+        @Suppress("ClickableViewAccessibility")
+        recyclerView.setOnTouchListener(onTouchListener)
     }
 
     @Synchronized
@@ -133,10 +135,9 @@ abstract class SwipeHelper(
 
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
             if (dX < 0) {
-                val buffer = buttonBuffer[pos]
 
-                translateX = dX * requireNotNull(buffer?.size) * BUTTON_WIDTH / itemView.width
-                drawButtons(c, itemView, buffer, pos, translateX)
+                translateX = dX * requireNotNull(buttons.size) * BUTTON_WIDTH / itemView.width
+                drawButtons(c, itemView, buttons, pos, translateX)
             }
         }
         super.onChildDraw(
