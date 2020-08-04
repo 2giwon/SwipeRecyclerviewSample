@@ -15,11 +15,12 @@ import java.util.*
 
 abstract class SwipeHelper(
     context: Context,
-    private val recyclerView: RecyclerView
+    private val recyclerView: RecyclerView,
+    private val buttons: List<UnderButton>
 ) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
 
-    private val buttons = mutableListOf<UnderButton>()
+    //    private val buttons = mutableListOf<UnderButton>()
     private var swipedPos = -1
     private val buttonBuffer: HashMap<Int, List<UnderButton>> = hashMapOf()
     private var swipeThreshold = 0.5f
@@ -96,15 +97,6 @@ abstract class SwipeHelper(
         }
 
         swipedPos = pos
-
-        if (buttonBuffer.containsKey(swipedPos)) {
-            buttons.clear()
-            buttons.addAll(buttonBuffer[swipedPos] ?: emptyList())
-        } else {
-            buttons.clear()
-        }
-
-        buttonBuffer.clear()
         swipeThreshold = 0.5f * buttons.size * BUTTON_WIDTH
         recoverSwipedItem()
     }
@@ -141,14 +133,7 @@ abstract class SwipeHelper(
 
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
             if (dX < 0) {
-                var buffer: List<UnderButton>? = mutableListOf()
-
-                if (!buttonBuffer.containsKey(pos)) {
-                    instantiateUnderlayButton(viewHolder, buffer)
-                    buttonBuffer[pos] = buffer ?: emptyList()
-                } else {
-                    buffer = buttonBuffer[pos]
-                }
+                val buffer = buttonBuffer[pos]
 
                 translateX = dX * requireNotNull(buffer?.size) * BUTTON_WIDTH / itemView.width
                 drawButtons(c, itemView, buffer, pos, translateX)
@@ -189,11 +174,6 @@ abstract class SwipeHelper(
         }
 
     }
-
-    abstract fun instantiateUnderlayButton(
-        viewHolder: RecyclerView.ViewHolder?,
-        underlayButtons: List<UnderButton>?
-    )
 
     companion object {
         private const val BUTTON_WIDTH = 200
