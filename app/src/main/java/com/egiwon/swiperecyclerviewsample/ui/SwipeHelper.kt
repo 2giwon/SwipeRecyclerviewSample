@@ -44,7 +44,7 @@ abstract class SwipeHelper(
     private val gestureDetector = GestureDetectorCompat(context, gestureSimpleListener)
 
     @Suppress("ClickableViewAccessibility")
-    private val onTouchListener: View.OnTouchListener = View.OnTouchListener { v, event ->
+    private val onTouchListener: View.OnTouchListener = View.OnTouchListener { _, event ->
         if (swipedPos < 0) return@OnTouchListener false
         val point = Point(event.rawX.toInt(), event.rawY.toInt())
 

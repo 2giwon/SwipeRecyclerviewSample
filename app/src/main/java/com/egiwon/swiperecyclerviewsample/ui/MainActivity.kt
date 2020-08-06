@@ -17,7 +17,9 @@ import com.egiwon.swiperecyclerviewsample.ui.model.SampleItem
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(R.layout.activity_main) {
+class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>(
+    R.layout.activity_main
+) {
 
     override val viewModel: MainViewModel by viewModels()
 
