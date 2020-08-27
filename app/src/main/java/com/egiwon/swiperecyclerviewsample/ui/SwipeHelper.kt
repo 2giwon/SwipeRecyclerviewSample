@@ -2,8 +2,6 @@ package com.egiwon.swiperecyclerviewsample.ui
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Point
-import android.graphics.Rect
 import android.graphics.RectF
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -11,7 +9,6 @@ import android.view.View
 import androidx.core.view.GestureDetectorCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import java.util.*
 
 abstract class SwipeHelper(
     context: Context,
@@ -22,11 +19,7 @@ abstract class SwipeHelper(
     private var swipedPos = -1
     private var swipeThreshold = 0.5f
 
-    private val recoverQueue: Queue<Int> = object : LinkedList<Int>() {
-        override fun add(element: Int): Boolean {
-            return if (contains(element)) true else super.add(element)
-        }
-    }
+    private val swipedList = mutableSetOf<Int>()
 
     private val gestureSimpleListener =
         object : GestureDetector.SimpleOnGestureListener() {
@@ -46,25 +39,12 @@ abstract class SwipeHelper(
     @Suppress("ClickableViewAccessibility")
     private val onTouchListener: View.OnTouchListener = View.OnTouchListener { _, event ->
         if (swipedPos < 0) return@OnTouchListener false
-        val point = Point(event.rawX.toInt(), event.rawY.toInt())
-
-        val swipeViewHolder: RecyclerView.ViewHolder? =
-            recyclerView.findViewHolderForAdapterPosition(swipedPos)
-        val swipeView = swipeViewHolder?.itemView
-        val rect = Rect()
-        swipeView?.getGlobalVisibleRect(rect)
-
-        if (event.action == MotionEvent.ACTION_DOWN ||
-            event.action == MotionEvent.ACTION_UP ||
-            event.action == MotionEvent.ACTION_MOVE
-        ) {
-            if (rect.top < point.y && rect.bottom > point.y)
-                gestureDetector.onTouchEvent(event)
-            else {
-                recoverQueue.add(swipedPos)
+        if (event.action == MotionEvent.ACTION_UP) {
+            if (!gestureDetector.onTouchEvent(event)) {
                 swipedPos = -1
-                recoverSwipedItem()
             }
+        } else {
+            gestureDetector.onTouchEvent(event)
         }
 
         false
@@ -77,10 +57,24 @@ abstract class SwipeHelper(
 
     @Synchronized
     private fun recoverSwipedItem() {
-        while (!recoverQueue.isEmpty()) {
-            val pos = requireNotNull(recoverQueue.poll())
-            if (pos > -1) {
-                recyclerView.adapter?.notifyItemChanged(pos)
+        while (swipedList.isNotEmpty()) {
+            val pos = swipedList.first()
+            swipedList.remove(pos)
+            recyclerView.adapter?.notifyItemChanged(pos)
+        }
+    }
+
+    @Synchronized
+    private fun recoverSwipedItem(currentIndex: Int) {
+        val tempList = mutableListOf<Int>()
+        tempList.addAll(swipedList)
+        swipedList.clear()
+
+        tempList.forEach {
+            if (it == currentIndex) {
+                swipedList.add(it)
+            } else {
+                recyclerView.adapter?.notifyItemChanged(it)
             }
         }
     }
@@ -94,13 +88,10 @@ abstract class SwipeHelper(
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         val pos = viewHolder.adapterPosition
 
-        if (swipedPos != pos) {
-            recoverQueue.add(swipedPos)
-        }
-
-        swipedPos = pos
         swipeThreshold = 0.5f * buttons.size * BUTTON_WIDTH
-        recoverSwipedItem()
+        recoverSwipedItem(pos)
+        swipedPos = pos
+        swipedList.add(pos)
     }
 
     override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
